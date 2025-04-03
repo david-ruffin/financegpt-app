@@ -100,19 +100,37 @@ While the current tool is a CLI, the next stage involves transforming it into a 
 3.  **Data Flow:** The frontend sends the question (and chat history) as JSON; the FastAPI backend processes it using the LangChain agent and Octagon tools; the backend returns the answer/sources as JSON to the frontend for display.
 4.  **Local Testing:** Both the FastAPI server and the frontend development server (e.g., using `npm run dev` in the `project` directory) will be run concurrently for local integration testing.
 
-## Testing with Mock Data
+## Testing UI with Mock Data (Local Development Only)
 
-To allow for frontend development and UI testing without incurring costs from the real Octagon API calls, a mock endpoint is provided.
+To test frontend UI changes (like layout, styling, or how responses are displayed) without hitting the real, potentially costly Octagon APIs, you can temporarily modify the backend server *locally*.
 
-1.  **Purpose:** Test UI rendering, component behavior, and data display (like link formatting) using a static, predefined response. This avoids hitting the paid API endpoints during UI iteration.
-2.  **Endpoint:** The FastAPI backend (`api_server.py`) includes an additional endpoint: `/ask-mock`.
-3.  **Behavior:** When called, `/ask-mock` ignores any input question and immediately returns a hardcoded sample response containing text and example source links.
-4.  **Usage for Local UI Testing:**
-    *   Ensure the backend API server is running (`uvicorn api_server:app ...`).
-    *   Temporarily modify the `fetch` call within the `sendMessage` function in `project/src/App.tsx`. Change the target URL from `'/ask'` to `'/ask-mock'`.
-    *   Run the frontend development server (`cd project && npm run dev`).
-    *   Now, any question submitted through the UI will hit the `/ask-mock` endpoint, allowing you to test the frontend's handling of the response structure and link rendering without making real API calls.
-    *   **Remember to change the URL back to `'/ask'` in `App.tsx` before building the final Docker image for production deployment.**
+1.  **Run Backend Locally:** Start the FastAPI server using Uvicorn with the `--reload` flag:
+    ```bash
+    # Ensure .venv is active
+    uvicorn api_server:app --reload --port 8000
+    ```
+2.  **Temporarily Modify Backend:** Open `api_server.py`. Find the `@app.post("/ask")` function (`ask_agent`). Add temporary code at the very beginning of this function to immediately return a hardcoded mock `AskResponse` object. For example:
+    ```python
+    @app.post("/ask", response_model=AskResponse)
+    async def ask_agent(request: AskRequest):
+        # --- TEMPORARY MOCK FOR LOCAL UI TESTING ---
+        print("!!! RETURNING MOCK DATA FROM /ask !!!")
+        mock_output = "This is a **mock** response for local UI test. URL: https://example.com/fake"
+        return AskResponse(output=mock_output)
+        # --- END TEMPORARY MOCK ---
+
+        # Original agent logic starts below this point...
+        if agent_executor is None:
+           # ... rest of function
+    ```
+3.  **Save Backend File:** Uvicorn (because of `--reload`) will automatically detect the change and restart the server with the mock logic active.
+4.  **Run Frontend Dev Server:** In a separate terminal:
+    ```bash
+    cd project
+    npm run dev -- --port 8003 # Or your preferred port
+    ```
+5.  **Test UI:** Open `http://localhost:8003` in your browser. All requests will now receive the mock data from your temporarily modified local backend.
+6.  **IMPORTANT:** **Do NOT commit** the temporary changes made to `api_server.py`. When finished testing, remove the temporary mock code from the `/ask` endpoint and save the file again. The Docker image for deployment should *always* contain the original, unmodified `/ask` endpoint logic.
 
 ## Project Files
 

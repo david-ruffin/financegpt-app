@@ -87,8 +87,10 @@ function App() {
 
     const historyForApi = messages;
 
+    const apiUrl = '/ask'; // Always use the real endpoint
+
     try {
-      const response = await fetch('/ask', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,8 +101,7 @@ function App() {
             type: msg.type,
             content: msg.content,
             timestamp: msg.timestamp.toISOString()
-          })),
-          use_mock: true
+          }))
         }),
       });
 
