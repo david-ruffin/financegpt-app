@@ -58,5 +58,10 @@ GOAL: Create a Python CLI application that accepts a user's natural language que
     *   **Test**: Run both backend API and frontend dev server locally. Enter a question in the UI, verify the response from the backend is displayed correctly.
     *   **Lint**: Run frontend linting (e.g., `npm run lint` or `npx eslint .` in the `project` directory).
 
-11. **(Future)** Containerize application (Backend + Frontend build) for deployment.
+11. **Containerize application (Backend + Frontend build) for deployment**: **[COMPLETED]**
+    *   ~~Create a Dockerfile that builds the frontend and combines it with the backend.~~
+    *   ~~Build and test the container locally.~~
+    *   ~~Push the container to Azure Container Registry.~~
+    *   ~~**Test**: Verify the containerized application works correctly.~~
+
 12. **(Future)** Set up GitHub Actions for CI/CD to Azure Container Apps.
