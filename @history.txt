@@ -10,4 +10,5 @@
 2024-07-20: Rebuilt Docker container for AMD64 architecture and pushed to Azure Container Registry (crwestus001.azurecr.io/financegpt-app:amd64).
 2024-07-20: Deployed application to Azure Container Apps at https://financegpt-app.yellowflower-c48d0081.westus.azurecontainerapps.io/
 2024-07-20: Fixed environment variables (GOOGLE_API_KEY and OCTAGON_API_KEY) in Azure Container App for proper application functionality.
-2024-07-20: Updated sample query in App.tsx from Tesla market cap to Immix Biopharma revenue question and redeployed. 
+2024-07-20: Updated sample query in App.tsx from Tesla market cap to Immix Biopharma revenue question and redeployed.
+2024-07-20: Redeployed application to Azure App Service at https://secv2.azurewebsites.net/ for the POC (more cost-effective for development). 
