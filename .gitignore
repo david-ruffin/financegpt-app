@@ -151,6 +151,9 @@ build/
 *.egg-info/
 
 # Node dependencies
+node_modules/
+*/node_modules/
+**/node_modules/
 project/node_modules/
 
 # Frontend build output

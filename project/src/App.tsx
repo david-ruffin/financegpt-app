@@ -39,7 +39,7 @@ const renderMessageContent = (content: string) => {
         rel="noopener noreferrer"
         className="text-blue-400 hover:text-blue-300 underline"
       >
-        {url}
+        Link
       </a>
     );
 
@@ -209,7 +209,7 @@ function App() {
                         : 'bg-[#111111] border border-[#222222] mr-12'
                     }`}
                   >
-                    <div className="text-base leading-relaxed">
+                    <div className="text-base leading-relaxed break-words">
                       {renderMessageContent(message.content)}
                     </div>
                     <p className={`text-xs mt-2 ${message.type === 'user' ? 'text-blue-200' : 'text-gray-500'}`}>
