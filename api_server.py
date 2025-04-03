@@ -41,6 +41,7 @@ class AskRequest(BaseModel):
     """Request model for the /ask endpoint."""
     input: str = Field(..., description="The user's question.")
     chat_history: List[ChatMessage] = Field(default_factory=list, description="The previous messages in the conversation.")
+    use_mock: bool = Field(False, description="If true, return a mock response instead of calling the agent.")
 
 class AskResponse(BaseModel):
     """Response model for the /ask endpoint."""
@@ -254,8 +255,15 @@ app = FastAPI(
 async def ask_agent(request: AskRequest):
     """
     Receives a question and chat history, passes it to the LangChain agent,
-    and returns the agent's response.
+    or returns a mock response if use_mock is true.
     """
+    # --- Mock Response Logic ---
+    if request.use_mock:
+        print(">>> Mock flag detected. Returning mock response. <<<")
+        mock_output = "This is a **mock** response for testing UI rendering. It includes a fake source link: https://example.com/mock-source"
+        return AskResponse(output=mock_output)
+    # --- End Mock Response Logic ---
+
     if agent_executor is None:
         print("Error: /ask called but agent_executor is not initialized.", file=sys.stderr)
         raise HTTPException(status_code=503, detail="Agent not initialized. Check server logs for configuration errors (e.g., API keys).")

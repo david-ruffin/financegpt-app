@@ -99,7 +99,8 @@ function App() {
             type: msg.type,
             content: msg.content,
             timestamp: msg.timestamp.toISOString()
-          }))
+          })),
+          use_mock: true
         }),
       });
 

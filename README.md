@@ -100,6 +100,20 @@ While the current tool is a CLI, the next stage involves transforming it into a 
 3.  **Data Flow:** The frontend sends the question (and chat history) as JSON; the FastAPI backend processes it using the LangChain agent and Octagon tools; the backend returns the answer/sources as JSON to the frontend for display.
 4.  **Local Testing:** Both the FastAPI server and the frontend development server (e.g., using `npm run dev` in the `project` directory) will be run concurrently for local integration testing.
 
+## Testing with Mock Data
+
+To allow for frontend development and UI testing without incurring costs from the real Octagon API calls, a mock endpoint is provided.
+
+1.  **Purpose:** Test UI rendering, component behavior, and data display (like link formatting) using a static, predefined response. This avoids hitting the paid API endpoints during UI iteration.
+2.  **Endpoint:** The FastAPI backend (`api_server.py`) includes an additional endpoint: `/ask-mock`.
+3.  **Behavior:** When called, `/ask-mock` ignores any input question and immediately returns a hardcoded sample response containing text and example source links.
+4.  **Usage for Local UI Testing:**
+    *   Ensure the backend API server is running (`uvicorn api_server:app ...`).
+    *   Temporarily modify the `fetch` call within the `sendMessage` function in `project/src/App.tsx`. Change the target URL from `'/ask'` to `'/ask-mock'`.
+    *   Run the frontend development server (`cd project && npm run dev`).
+    *   Now, any question submitted through the UI will hit the `/ask-mock` endpoint, allowing you to test the frontend's handling of the response structure and link rendering without making real API calls.
+    *   **Remember to change the URL back to `'/ask'` in `App.tsx` before building the final Docker image for production deployment.**
+
 ## Project Files
 
 -   `sec_bot_cli.py`: Main application script.
