@@ -10,7 +10,7 @@ interface Message {
 const sampleQueries = [
   "What were Apple's revenue numbers in the latest 10-K?",
   "Show me Microsoft's latest earnings call highlights",
-  "What is Tesla's current market cap?",
+  "What did immix biopharma report as revenue for the quarter ended September 30, 2024",
   "Compare Amazon and Walmart's profit margins"
 ];
 
