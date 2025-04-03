@@ -8,10 +8,10 @@ interface Message {
 }
 
 const sampleQueries = [
-  "What were Apple's revenue numbers in the latest 10-K?",
-  "Show me Microsoft's latest earnings call highlights",
-  "What did immix biopharma report as revenue for the quarter ended September 30, 2024",
-  "Compare Amazon and Walmart's profit margins"
+  "What were Apple's revenue numbers in the 2023 10-K?",
+  "Show me Microsoft's 2022 earnings call highlights",
+  "How many shares outstanding did immix biopharma have as of 12/31/23",
+  "What are Tesla's risk factors in their 2023 10-K?"
 ];
 
 // Hardcoded mock response for UI testing
