@@ -14,6 +14,13 @@ const sampleQueries = [
   "Compare Amazon and Walmart's profit margins"
 ];
 
+// Hardcoded mock response for UI testing
+const MOCK_RESPONSE = `This is a simulated response specifically for testing UI formatting when the '/mock' path is used. It contains a long line of text to verify that wrapping works correctly across various screen sizes, preventing overflow and ensuring readability.
+
+SOURCES:
+1. Mock Source One: http://example.com/very/long/mock/path/that/definitely/needs/to/be/handled/by/the/link/shortening/logic/file.html
+2. Mock Source Two: https://short.mock/another-link`;
+
 // Helper function to render content with clickable links (using matchAll)
 const renderMessageContent = (content: string) => {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -63,7 +70,32 @@ function App() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMockMode, setIsMockMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (window.location.pathname === '/mock') {
+      console.log("Mock mode detected.");
+      setIsMockMode(true);
+    } else {
+      setIsMockMode(false);
+    }
+  }, []);
+
+  // Function to send logs to the backend
+  const logToBackend = (message: string) => {
+    // Fire-and-forget: Send the log but don't wait for a response or handle errors robustly for now
+    fetch('/log_frontend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message }),
+    }).catch(error => {
+      // Log error to browser console if backend logging fails
+      console.error('Failed to send log to backend:', error);
+    });
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -85,12 +117,24 @@ function App() {
     setMessages(prev => [...prev, newUserMessage]);
     setIsLoading(true);
 
-    const historyForApi = messages;
+    if (isMockMode) {
+      logToBackend("Using mock response.");
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const mockBotMessage: Message = {
+        type: 'bot',
+        content: MOCK_RESPONSE,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, mockBotMessage]);
+      setIsLoading(false);
+      return;
+    }
 
-    const apiUrl = '/ask'; // Always use the real endpoint
+    logToBackend("Calling real /ask API.");
+    const historyForApi = messages.filter(msg => msg !== newUserMessage);
 
     try {
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

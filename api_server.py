@@ -41,11 +41,14 @@ class AskRequest(BaseModel):
     """Request model for the /ask endpoint."""
     input: str = Field(..., description="The user's question.")
     chat_history: List[ChatMessage] = Field(default_factory=list, description="The previous messages in the conversation.")
-    use_mock: bool = Field(False, description="If true, return a mock response instead of calling the agent.")
 
 class AskResponse(BaseModel):
     """Response model for the /ask endpoint."""
     output: str = Field(..., description="The agent's response, potentially including sources.")
+
+# Add model for frontend log messages
+class FrontendLog(BaseModel):
+    message: str
 
 # --- Agent Initialization Logic (from sec_bot_cli.py) ---
 
@@ -255,15 +258,8 @@ app = FastAPI(
 async def ask_agent(request: AskRequest):
     """
     Receives a question and chat history, passes it to the LangChain agent,
-    or returns a mock response if use_mock is true.
+    and returns the agent's response.
     """
-    # --- Mock Response Logic ---
-    if request.use_mock:
-        print(">>> Mock flag detected. Returning mock response. <<<")
-        mock_output = "This is a **mock** response for testing UI rendering. It includes a fake source link: https://example.com/mock-source"
-        return AskResponse(output=mock_output)
-    # --- End Mock Response Logic ---
-
     if agent_executor is None:
         print("Error: /ask called but agent_executor is not initialized.", file=sys.stderr)
         raise HTTPException(status_code=503, detail="Agent not initialized. Check server logs for configuration errors (e.g., API keys).")
@@ -314,11 +310,34 @@ async def ask_agent(request: AskRequest):
         traceback.print_exc(file=sys.stderr)
         raise HTTPException(status_code=500, detail=f"Internal server error during agent execution: {e}")
 
+# --- Endpoint for receiving frontend logs ---
+@app.post("/log_frontend", status_code=204) # Return 204 No Content on success
+async def receive_frontend_log(log_entry: FrontendLog):
+    """Receives a log message from the frontend and prints it to the console."""
+    # Simple print for now - App Service Diagnostic Settings will capture this stdout
+    print(f"FRONTEND LOG: {log_entry.message}")
+    # No response body needed, just acknowledge receipt with 204
+    return
+
 # --- Static Files Hosting ---
 # Mount the static files directory (containing the built React app)
 # IMPORTANT: This path must match the destination in the Dockerfile
 app.mount("/assets", StaticFiles(directory="/app/static/assets"), name="assets")
 
+# Route for the mock version - serves the same index.html
+@app.get("/mock")
+async def serve_mock_react_app():
+    """Serves the main index.html for the /mock path."""
+    if agent_executor is None:
+        print("Error: /mock requested but agent_executor is not initialized.", file=sys.stderr)
+        raise HTTPException(
+            status_code=503,
+            detail="Agent not initialized. Cannot serve application. Check server logs."
+        )
+    print("Serving index.html for path: /mock")
+    return FileResponse("/app/static/index.html")
+
+# Catch-all route for the main app and any other paths (client-side routing)
 @app.get("/{full_path:path}")
 async def serve_react_app(full_path: str):
     """Serves the main index.html for any other routes, enabling client-side routing."""
