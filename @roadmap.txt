@@ -1,0 +1,62 @@
+# @roadmap.txt
+
+GOAL: Create a Python CLI application that accepts a user's natural language question, calls the appropriate Octagon agent (e.g., `octagon-sec-agent`) via its OpenAI-compatible API (`https://api.octagonagents.com/v1`) using LangChain's `ChatOpenAI` client, and prints the response. This serves as a foundation for a future web application hosted on Azure.
+
+## Tasks
+
+1.  **Setup Project Dependencies & Basic Structure**: **[COMPLETED]**
+    *   ~~Update `sec_bot_cli.py` for basic LangChain setup.~~
+    *   ~~Create `.env` for API keys (User Task).~~
+    *   ~~Install necessary libraries (`langchain`, `langchain-google-genai`, `python-dotenv`, `flake8`, `openai`).~~
+    *   ~~Initialize Google LLM client, loading API key from `.env`.~~ (Removed Google LLM for now)
+    *   ~~Implement basic CLI input loop.~~
+    *   ~~**Test**: Run script, verify it starts without errors and loads API key.~~
+    *   ~~**Lint**: `flake8 sec_bot_cli.py`~~ (Minor issues remaining)
+
+2.  **Initialize Octagon Client**:
+    *   Update `sec_bot_cli.py`.
+    *   Add function `initialize_octagon_client(model_name)` that:
+        *   Reads `OCTAGON_API_KEY` and `OCTAGON_API_BASE_URL` from `.env`.
+        *   Initializes and returns a `langchain_openai.ChatOpenAI` client configured with the Octagon key, base URL, and the specified `model_name` (e.g., "octagon-sec-agent").
+    *   Call this function in `main` to get the client.
+    *   **Test**: Run script, verify it initializes the Octagon client without errors.
+    *   **Lint**: `flake8 sec_bot_cli.py`
+
+3.  **Call Octagon Agent & Display Response**:
+    *   In the main loop, when a user question is received:
+        *   Create a `HumanMessage` with the user's question.
+        *   Invoke the initialized Octagon client (from Task 2) with the message.
+        *   Print the `content` of the response directly.
+    *   **Test**: Run script, ask a question (e.g., "AAPL risk factors 2023 10k"), verify a response from the Octagon agent is printed.
+    *   **Lint**: `flake8 sec_bot_cli.py`
+
+4.  **Refine Response Parsing and Display**:
+    *   Parse the response content (which might include citations) for cleaner display.
+    *   **Test**: Verify answers are clean and readable.
+    *   **Lint**: `flake8 sec_bot_cli.py`
+
+5.  **(Future)** Add logic to select different Octagon agents (models) based on the query.
+6.  **(Future)** Re-introduce Google LLM (Gemini) + LangChain Agent/Chain for orchestration if needed.
+7.  **(Future)** Implement error handling (API errors, etc.).
+8.  **(Future)** Add conversational memory.
+9.  **Create FastAPI Backend API**:
+    *   Create `api_server.py`.
+    *   Add `fastapi` and `uvicorn` to `requirements.txt`.
+    *   Refactor core agent/tool logic from `sec_bot_cli.py` into callable functions within `api_server.py`.
+    *   Implement a FastAPI app with an `/ask` endpoint that accepts POST requests (question, optional chat_history).
+    *   The `/ask` endpoint should call the agent logic and return the response (answer + sources) as JSON.
+    *   **Test**: Use `curl` or a similar tool to send POST requests to the local `/ask` endpoint and verify JSON responses.
+    *   **Lint**: `flake8 api_server.py`
+
+10. **Integrate Frontend with Backend API**:
+    *   Requires: Task 9 Completed.
+    *   Identify the component in `project/src/` responsible for user input and displaying results.
+    *   Modify the frontend component to make `fetch` or `axios` POST requests to the backend `/ask` endpoint (e.g., `http://localhost:8000/ask`).
+    *   Send the user question and any relevant chat history as JSON in the request body.
+    *   Receive the JSON response and display the answer/sources in the UI.
+    *   Configure frontend development server proxy (e.g., in `vite.config.ts`) if needed for local development CORS avoidance.
+    *   **Test**: Run both backend API and frontend dev server locally. Enter a question in the UI, verify the response from the backend is displayed correctly.
+    *   **Lint**: Run frontend linting (e.g., `npm run lint` or `npx eslint .` in the `project` directory).
+
+11. **(Future)** Containerize application (Backend + Frontend build) for deployment.
+12. **(Future)** Set up GitHub Actions for CI/CD to Azure Container Apps.

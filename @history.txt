@@ -1,0 +1,8 @@
+# @history.txt
+2024-07-26 11:00:00: Initialized project, created .venv.
+2024-07-26 11:05:00: Created @roadmap.txt and @history.txt.
+2024-07-26 11:10:00: Created initial sec_bot_cli.py with input loop.
+2024-07-26 11:20:00: Discussed architecture, decided to use LangChain + Google LLM for future web/Azure compatibility.
+2024-07-26 11:45:00: Discovered Octagon API is OpenAI-compatible via octagon-mcp source code. Revised plan to use ChatOpenAI client directly pointed at Octagon API.
+2024-07-17: Updated @roadmap.txt with tasks for FastAPI backend and frontend integration.
+2024-07-17: Updated README.md with API/Frontend integration plan and revised future enhancements. 
